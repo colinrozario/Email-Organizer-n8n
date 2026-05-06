@@ -2,6 +2,8 @@
 
 This repository contains an enhanced Email Organizer Workflow built using n8n. The workflow leverages an AI model to intelligently classify incoming emails into specific categories—Promotions, Socials, Personal, and Career—and then performs automated cleanup actions based on the classification.
 
+Read more here : https://docs.google.com/document/d/14dQ_Vt9sU4il6JHQ260gcV0IWA8VD0eUHCa7DuzM62U/edit?usp=sharing
+
 ## Project Files
 
 - `Email Inbox.json`: The n8n workflow configuration file. Import this into your n8n instance to deploy the workflow.
