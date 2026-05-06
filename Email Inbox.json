@@ -1,0 +1,651 @@
+{
+  "name": "Email Inbox",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f6f9fbd6-d725-4fc5-87a1-073788293384",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WQDpBUI4uOnb3JUY",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Prompt:\n\nYou are an intelligent assistant trained to analyze and sort incoming emails.\n\nYour tasks are:\n\nCategorize the email using the list below. Choose only the most relevant category.\n\n---\n\n1. Promotions\n   Emails promoting a product or service, including offers, discounts, marketing campaigns, or newsletters.\n   Examples:\n\n* “50% Off Our New Course”\n* “Limited Time Offer Just for You”\n* “Amazon Deals You Might Like”\n  Output Category: Promotions\n\n---\n\n2. Socials\n   Notifications and updates from social platforms or online communities.\n   Examples:\n\n* “You have a new connection on LinkedIn”\n* “Instagram: Someone liked your post”\n* “Facebook: You have new notifications”\n  Output Category: Socials\n\n---\n\n3. Personal\n   Emails that are direct, personal, or conversational in nature, often requiring a response.\n   Examples:\n\n* “Can we talk today?”\n* “Your friend sent you a message”\n* “Hey, just checking in”\n  Output Category: Personal\n\n---\n\n4. Career\n   Emails related to jobs, internships, networking, or professional communication.\n   Examples:\n\n* “Interview Invitation for Software Intern Role”\n* “Application Update from XYZ Company”\n* “Let’s connect regarding an opportunity”\n  Output Category: Career\n\n---\n\n5. Misc\n   Emails that don’t clearly fit into the above categories, including system messages or general notifications.\n   Examples:\n\n* “Your OTP Code is 482193”\n* “Payment Receipt Attached”\n* “Your password has been reset”\n  Output Category: Misc\n\n---\n\nInstructions:\n\n* Analyze both the subject and content of the email\n* Choose only one category\n* If multiple categories seem relevant, select the dominant intent\n* Output only the category name (e.g., Career) and nothing else\n\n---\n"
+            },
+            {
+              "content": "=Sender: {{ $json.from.value[0].name }}\nSubject: {{ $json.subject }}\nEmail Body: {{ $json.text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4e9092e8-bff4-49e1-ae01-21b38bd2bcb2",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nke8MXsfqKXOTisC",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output[0].content[0].text }}",
+                    "rightValue": "Promotions",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "b80b3d64-7b63-4122-b329-b937856e51c8"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f0139947-4d34-4ea0-887d-b2e2e57e3935",
+                    "leftValue": "={{ $json.output[0].content[0].text }}",
+                    "rightValue": "Socials",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f3eee9e9-4d91-427f-b7c3-a362b73a75bb",
+                    "leftValue": "={{ $json.output[0].content[0].text }}",
+                    "rightValue": "Personal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "719ae438-fad0-4a18-bec7-d048cc571171",
+                    "leftValue": "={{ $json.output[0].content[0].text }}",
+                    "rightValue": "Career",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f561616d-6b11-4a7a-be85-4a1e339ad9bf",
+                    "leftValue": "={{ $json.output[0].content[0].text }}",
+                    "rightValue": "Misc",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "5eec8488-0cd8-4c9e-ad57-d7c1ac973e0d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_540182515256306177"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        752,
+        -272
+      ],
+      "id": "3d06905d-21b6-484f-8667-fffa6d44deb5",
+      "name": "Promotions",
+      "webhookId": "5faf2da5-3ecd-475a-99a7-877367027b8f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WQDpBUI4uOnb3JUY",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_7073947666625308678"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        752,
+        -112
+      ],
+      "id": "fbaf11eb-35e1-40de-8c27-845fc620cf2d",
+      "name": "Socials",
+      "webhookId": "5faf2da5-3ecd-475a-99a7-877367027b8f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WQDpBUI4uOnb3JUY",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_4855137390616371117"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        752,
+        16
+      ],
+      "id": "117b20e5-f52a-45f4-9b17-2ee981de8238",
+      "name": "Personal",
+      "webhookId": "5faf2da5-3ecd-475a-99a7-877367027b8f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WQDpBUI4uOnb3JUY",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_1759850093577238313"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        752,
+        176
+      ],
+      "id": "64c19e15-addc-4f85-a00f-37a21ca308a5",
+      "name": "Career",
+      "webhookId": "5faf2da5-3ecd-475a-99a7-877367027b8f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WQDpBUI4uOnb3JUY",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_8231375757764192174"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        752,
+        336
+      ],
+      "id": "c2362c83-b281-440b-a1a3-fe00c7753408",
+      "name": "Misc",
+      "webhookId": "5faf2da5-3ecd-475a-99a7-877367027b8f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WQDpBUI4uOnb3JUY",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1088,
+        336
+      ],
+      "id": "f808f5da-d11e-4b9f-b8fe-6b44e0e3c2d5",
+      "name": "Mark a message as read",
+      "webhookId": "92fd27b2-cc87-466d-974a-22a3d8d6f79c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WQDpBUI4uOnb3JUY",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "removeLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "INBOX"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        336
+      ],
+      "id": "d7ac3b73-a1da-40e7-978f-ec19d722d111",
+      "name": "Remove label from message",
+      "webhookId": "c09345e9-9a42-4b11-8f59-652793450938",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WQDpBUI4uOnb3JUY",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-5-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are an expert at replying to incoming emails. Please create a custom response.\n\nRules:\n1. Please do not include custom variables like [Name]\n2. Please sign off on all emails with \"Best, \nColin Michael\""
+            },
+            {
+              "content": "=Sender: {{ $('Gmail Trigger').item.json.from.value[0].address }}\nSubject: {{ $('Gmail Trigger').item.json.headers.subject }}\nEmail body: {{ $('Gmail Trigger').item.json.text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        0
+      ],
+      "id": "849d593f-ad70-4525-8056-112bf65ee7cc",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "nke8MXsfqKXOTisC",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=RE:  {{ $('Gmail Trigger').item.json.headers.subject }}",
+        "message": "={{ $json.output[0].content[0].text }}",
+        "options": {
+          "threadId": "",
+          "sendTo": "={{ $('Gmail Trigger').item.json.from.value[0].address }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1424,
+        0
+      ],
+      "id": "592e768c-a6bb-444f-b602-d6452b2b102d",
+      "name": "Create a draft",
+      "webhookId": "bc1756e5-7d56-41df-8e43-3d7ac80780c4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WQDpBUI4uOnb3JUY",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19dda478c85cb93f",
+          "threadId": "19dda478c85cb93f",
+          "labelIds": [
+            "UNREAD",
+            "IMPORTANT",
+            "CATEGORY_PERSONAL",
+            "INBOX"
+          ],
+          "sizeEstimate": 6954,
+          "headers": {
+            "delivered-to": "Delivered-To: colinmichaeldrozario1@gmail.com",
+            "received": "Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])\r\n        by mx.google.com with SMTPS id af79cd13be357-8f940e04cf1sor207194085a.15.2026.04.29.10.26.55\r\n        for <colinmichaeldrozario1@gmail.com>\r\n        (Google Transport Security);\r\n        Wed, 29 Apr 2026 10:26:55 -0700 (PDT)",
+            "x-received": "X-Received: by 2002:a05:620a:2949:b0:8f1:9e59:220e with SMTP id\r\n af79cd13be357-8f7d8f0e638mr1171881685a.39.1777483614871; Wed, 29 Apr 2026\r\n 10:26:54 -0700 (PDT)",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; t=1777483615; cv=none;\r\n        d=google.com; s=arc-20240605;\r\n        b=hGAco11O7M92dynjzZmFjOMxJwBWgdPOGtb18PYvdL+sx1VYydnFJf3F4x8FCSXduL\r\n         50Bt/5WZMBBbKlh7Ru7Uop5HrTSDxqRV/YUN0gNmJWB53cGbr2M6qI2bhY9NYXXS/mRI\r\n         3Hm0z8U7Afp39Efal914+rIzGGGAr4xqGjqxlfcHqDSXCPRZw5JA6oF8vsoU370/ldCI\r\n         2rvnZOSPhu3vuvmbSdOT/WZYPhcCS3e+LneL08DUpv6vE7T22kIPJTy4s0MmX90jbfaS\r\n         BkoFUuegC0Yj4ggVn/egkd9fxi2ZhNX/fP2Wx9v7oq5EosGb2R0HWMRcuk3UpkdcuNI6\r\n         N6JA==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;\r\n        h=to:subject:message-id:date:from:mime-version:dkim-signature;\r\n        bh=k3ur2YLrxmtWmJf1Ez7ACiParCFy1DZARzGZBDJp+Hg=;\r\n        fh=sUs8wda2MEg7lv3aiJIQMS8zCXMQVN+UyZtlAm98h5k=;\r\n        b=UptYA2zL1euQ05DD4jmPfRlal3J+gu1JH2VYKW/NFwfPfAla9/cQDj/G6GyDgXGqPL\r\n         Ioos3NflPUG/PC94ODpq817CNmkTX3kElLjhCT9FRM7+fzaYE1aihK/PxMTspUj0tK8o\r\n         3+kgCNYJgW7fc1m0j+EwiN0zSBCInJgk2h0dRfQnZk006hR8CG6zTJb7aK7RDmzjMarw\r\n         Qm+PoSDBfblXNmiNZaN5x3ys1h/CTWSNjN7Tt/Zt7cvbwxTJwJH3apr2sQpF2wPX4oAj\r\n         jruzCGK8BhM7ouBQ60J4Bqf9oBqiANiFl36082ipJvU35Ssgd1ClRiBRKYk7cE2A+D9s\r\n         pl5Q==;\r\n        dara=google.com",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.google.com; arc=none",
+            "return-path": "Return-Path: <ucse23015@stu.xim.edu.in>",
+            "received-spf": "Received-SPF: pass (google.com: domain of ucse23015@stu.xim.edu.in designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;",
+            "authentication-results": "Authentication-Results: mx.google.com;\r\n       dkim=pass header.i=@stu.xim.edu.in header.s=google header.b=Dcd0ql5a;\r\n       arc=pass (i=1);\r\n       spf=pass (google.com: domain of ucse23015@stu.xim.edu.in designates 209.85.220.41 as permitted sender) smtp.mailfrom=ucse23015@stu.xim.edu.in;\r\n       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=stu.xim.edu.in;\r\n       dara=pass header.i=@gmail.com",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=stu.xim.edu.in; s=google; t=1777483615; x=1778088415; dara=google.com;\r\n        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject\r\n         :date:message-id:reply-to;\r\n        bh=k3ur2YLrxmtWmJf1Ez7ACiParCFy1DZARzGZBDJp+Hg=;\r\n        b=Dcd0ql5aW6ITjoXXhJz5G15fBacid0N6hb64PMleoLml2PgEKYAe+8bA0F6FLJv1RK\r\n         oQqTASghIsbUPaQMcjDvQJWCohzmq33c6iNb86eU9/OvtFbFinoC2V6PynVFwd2AAdI1\r\n         tacjLYyKlGQRM9Y0GLbUuDSSHaGpAtMXrUV1g=",
+            "x-google-dkim-signature": "X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=1e100.net; s=20251104; t=1777483615; x=1778088415;\r\n        h=to:subject:message-id:date:from:mime-version:x-gm-gg\r\n         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;\r\n        bh=k3ur2YLrxmtWmJf1Ez7ACiParCFy1DZARzGZBDJp+Hg=;\r\n        b=nyV8qNV5sZD4IVIQW8/Nx2JCDpAb86AaLwJWh3gcoU/rCUS1wC9+wxhhRbmhIklvgx\r\n         bXmunIl5AosUCEi3dKr8d8eKfNSOvoNN280ea4+rcdRm554n+3PqInQwAjcnd5g/L7AL\r\n         5JmzorB6gPdhFzeebRJqnjTGkenaWzdwfDdEgsGC35IMF9q9OBFj2mAgZSM+bk+icjZi\r\n         arRmRdd0bcaLZHY+AQdhpoyW5kA4FS053gQJ4kYtMZw9Or7SWKBrB8gWrv3BfpPVmzZp\r\n         1Nd1ZGunvgNdtW6eVh+/nyv9SBxBzDjfOCo6jOjYbnUVvqqNYCu3GgvQjfW/LGfXzL1s\r\n         Snag==",
+            "x-gm-message-state": "X-Gm-Message-State: AOJu0Yzxegl4EbCSPMbjJTWThMduO6bcnv/lmTjPtYvOFinbq62kPPyL\r\n\t+IgFxJUWqvwjU7ND2oCWuP28feLIDpIBQlDTWB26c33syd/EA3dZiQb1rBDSdAgnKMJ5FELC73+\r\n\tfLM25EZ++4Qf50OgpE3qdw01sj9gfsoAoeurAqooayQw5DnB6hL0r7UE/JGISnEd3z3E2dR6tqa\r\n\tpmjp46Ys6ZOFIjdq2xUsIlzrpH5wtULcNO/2EIjrnSSjootiM7eLDG",
+            "x-gm-gg": "X-Gm-Gg: AeBDieuOIKsum7FSvIXBxyvAkjZ5LigG0eauBeWUtqpNE/zJTjWUB2CVY1V9WGIt4hg\r\n\tPDXJsvTAfQ/xef9+PCXmC2GMng242FB0I1x3YYRRHZkRJXn7KoAAEG0b1SX3UoVjzOAdZDjpq3P\r\n\tIxRgTiYXLiI8u8k9cggMAjEHpyuXubI1MMTAAa2lTGhVSjWShiS4biTgZk7/ymhKFJO66bfepT3\r\n\teCJTyeY59TZsQh4baKVMnP4A/WzbgaupPf/UjM44fCsM7zO2gXZYlIpM1OM/tl/MtVywn2UZely\r\n\ttNdd0PhxgosZUTE+iegj3JyggnQJgAN4gzvXGbjOObLSXYJ6JUNzbcstZ/Y7EJ4dcR0FtY7shGQ\r\n\tl4XDvaQ==",
+            "mime-version": "MIME-Version: 1.0",
+            "from": "From: Colin Michael D Rozario <ucse23015@stu.xim.edu.in>",
+            "date": "Date: Wed, 29 Apr 2026 22:56:42 +0530",
+            "x-gm-features": "X-Gm-Features: AVHnY4K0KqhmueNTvRyZ7lmulGwQ57duWjgVpDk3AVX6SnTKDTarCM4IB3UvnEs",
+            "message-id": "Message-ID: <CA+jaOrOaK=w6qYa0rdoSt93nebC4+tgH-_5X5oZgcdYDkinqZg@mail.gmail.com>",
+            "subject": "Subject: Promotion",
+            "to": "To: colinmichaeldrozario1@gmail.com",
+            "content-type": "Content-Type: multipart/alternative; boundary=\"0000000000007573a906509ca767\""
+          },
+          "html": "<div dir=\"auto\">This is a promotional email</div>\n",
+          "text": "This is a promotional email\n",
+          "textAsHtml": "<p>This is a promotional email</p>",
+          "subject": "Promotion",
+          "date": "2026-04-29T17:26:42.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "colinmichaeldrozario1@gmail.com",
+                "name": ""
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><a href=\"mailto:colinmichaeldrozario1@gmail.com\" class=\"mp_address_email\">colinmichaeldrozario1@gmail.com</a></span>",
+            "text": "colinmichaeldrozario1@gmail.com"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "ucse23015@stu.xim.edu.in",
+                "name": "Colin Michael D Rozario"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Colin Michael D Rozario</span> &lt;<a href=\"mailto:ucse23015@stu.xim.edu.in\" class=\"mp_address_email\">ucse23015@stu.xim.edu.in</a>&gt;</span>",
+            "text": "\"Colin Michael D Rozario\" <ucse23015@stu.xim.edu.in>"
+          },
+          "messageId": "<CA+jaOrOaK=w6qYa0rdoSt93nebC4+tgH-_5X5oZgcdYDkinqZg@mail.gmail.com>"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Message a model": [
+      {
+        "json": {
+          "output": [
+            {
+              "id": "msg_00456035db4077810069f23f9476d8819982b1082751475625",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "Personal"
+                }
+              ],
+              "role": "assistant"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Promotions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Socials",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Personal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Career",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Misc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Misc": {
+      "main": [
+        [
+          {
+            "node": "Mark a message as read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark a message as read": {
+      "main": [
+        [
+          {
+            "node": "Remove label from message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Promotions": {
+      "main": [
+        [
+          {
+            "node": "Mark a message as read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Socials": {
+      "main": [
+        []
+      ]
+    },
+    "Personal": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "00e2cd34-b761-4a0f-935e-f951fd7e9696",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e87a9a800e8275cf9b470ec7ac7c466261b2e043fe218ca195ab2df7314b779a"
+  },
+  "id": "1eG9bD50vwKaCnZS",
+  "tags": []
+}
